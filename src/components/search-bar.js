@@ -5,7 +5,9 @@ class SearchBar extends Component {
     super(props);
     this.state = {
       searchText: "",
-      placeHolder: "Tapez votre film..."
+      placeHolder: "Search a film...",
+      intervalBeforeRequest: 1000,
+      lockRequest: false
     };
   }
 
@@ -13,15 +15,49 @@ class SearchBar extends Component {
     this.setState({
       searchText: event.target.value
     });
+    if (!this.state.lockRequest) {
+      this.setState({
+        lockRequest: true
+      });
+      setTimeout(
+        function() {
+          this.search();
+        }.bind(this),
+        this.state.intervalBeforeRequest
+      );
+    }
   };
 
+  handleOnClick = () => {
+    this.search();
+  };
+
+  search() {
+    this.props.callback(this.state.searchText);
+    this.setState({
+      lockRequest: false
+    });
+  }
+
+  /**
+   * Search bar avec attributs BootStrap et responsive
+   */
   render() {
     return (
-      <div>
-        <input
-          onChange={this.handleChange}
-          placeholder={this.state.placeHolder}
-        />
+      <div className="row">
+        <div className="col-lg-8 input-group">
+          <input
+            onKeyUp={this.handleChange}
+            type="text"
+            className="form-control input-lg"
+            placeholder={this.state.placeHolder}
+          />
+          <span className="input-group-btn">
+            <button className="btn btn-secondary" onClick={this.handleOnClick}>
+              Go
+            </button>
+          </span>
+        </div>
       </div>
     );
   }
